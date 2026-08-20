@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import sys
 
+
 def read_data_and_preprocess(file_path):
     try:
         df = pd.read_csv(file_path)
@@ -69,7 +70,6 @@ def train_model(mileage, price, theta0, theta1, learning_rate=0.01, num_iteratio
 
         theta0 -= tmpθ0
         theta1 -= tmpθ1
-        print(f"Iteration {i}: theta0 = {theta0}, theta1 = {theta1}")
     print(f"Training completed. Final parameters: theta0 = {theta0}, theta1 = {theta1}")
     return theta0, theta1
 
@@ -93,5 +93,6 @@ def main():
     except Exception as e:
         print("An error occurred:", e)
     
+
 if __name__ == "__main__":
     main()

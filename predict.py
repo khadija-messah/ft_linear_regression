@@ -1,5 +1,6 @@
 import sys
-
+import matplotlib.pyplot as plt
+import pandas as pd
 def main():
     if len(sys.argv) != 2:
         print("Usage: python predict.py <mileage>")
@@ -24,7 +25,14 @@ def main():
     estimated_price = theta0 + theta1 * normalized_mileage
 
     print(f"Estimated price for {mileage} km: {estimated_price}")
-
+    f = pd.read_csv("data.csv")
+    x = f.columns.tolist()
+    plt.plot(f[x[1]],f[x[0]],marker = 'o')
+    plt.title("km,prix")
+    plt.xlabel(x[0])
+    plt.ylabel(x[1])
+    
+    plt.show()
 
 if __name__ == "__main__":
     main()
