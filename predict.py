@@ -1,13 +1,14 @@
 import sys
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 def main():
     if len(sys.argv) != 2:
         print("Usage: python predict.py <mileage>")
         return
 
     try:
-        mileage = float(sys.argv[1])
+        input_mileage = float(sys.argv[1])
     except ValueError:
         print("Please enter a valid mileage value.")
         return
@@ -17,21 +18,35 @@ def main():
             float,
             f.read().split(",")
         )
-
-    normalized_mileage = (
-        mileage - mileage_min
+    normalized_input = (
+        input_mileage - mileage_min
     ) / (mileage_max - mileage_min)
+    estimated_price = theta0 + theta1 * normalized_input
 
-    estimated_price = theta0 + theta1 * normalized_mileage
 
-    print(f"Estimated price for {mileage} km: {estimated_price}")
+    print("input_mileage:", input_mileage)
+    print("mileage_min:", mileage_min)
+    print("mileage_max:", mileage_max)
+    print("normalized_input:", normalized_input)
+    print("theta0:", theta0)
+    print("theta1:", theta1)
+
+
     f = pd.read_csv("data.csv")
     x = f.columns.tolist()
-    plt.plot(f[x[1]],f[x[0]],marker = 'o')
+    km_values = np.linspace(mileage_min, mileage_max, 100)
+    normalized_km_values = (km_values - mileage_min) / (mileage_max - mileage_min)
+    price_values = theta0 + theta1 * normalized_km_values
+
+    print(f"Estimated price for {input_mileage} km: {estimated_price}")
+
+    plt.scatter(f[x[0]], f[x[1]], color='blue', label='Data Points')
+    plt.plot(km_values, price_values, color='red', label='Linear Regression')
+
     plt.title("km,prix")
     plt.xlabel(x[0])
     plt.ylabel(x[1])
-    
+    plt.legend()
     plt.show()
 
 if __name__ == "__main__":
