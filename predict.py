@@ -43,11 +43,24 @@ def main():
     plt.scatter(f[x[0]], f[x[1]], color='blue', label='Data Points')
     plt.plot(km_values, price_values, color='red', label='Linear Regression')
 
+    
+
+    calculated_mean_price = np.mean(f[x[1]])
+    print("calculated_mean_price:", calculated_mean_price)
+    ss_total= np.sum((f[x[1]] - calculated_mean_price) ** 2)
+    print("total_sum_of_squares:", ss_total)
+
+    ss_residual = np.sum((f[x[1]] - (theta0 + theta1 * ((f[x[0]] - mileage_min) / (mileage_max - mileage_min)))) ** 2)
+    print("residual_sum_of_squares:", ss_residual)
+
+    r_squared = 1 - (ss_residual / ss_total)
+    print("R-squared value:", r_squared)
+
     plt.title("km,prix")
     plt.xlabel(x[0])
     plt.ylabel(x[1])
     plt.legend()
-    plt.show()
+    # plt.show()
 
 if __name__ == "__main__":
     main()
