@@ -56,11 +56,13 @@ def main():
     r_squared = 1 - (ss_residual / ss_total)
     print("R-squared value:", r_squared)
 
-    plt.title("km,prix")
+    plt.title(f"Estimated Price for Mileage {sys.argv[1]} km",fontdict={'family':'serif','color':'pink','size':12})
+    plt.plot(input_mileage, estimated_price, marker='o', markersize=8, color='green', label='Estimated Price')
     plt.xlabel(x[0])
     plt.ylabel(x[1])
+    plt.grid(color = 'pink', linestyle = '--', linewidth = 0.5)
     plt.legend()
-    # plt.show()
+    plt.show()
 
 if __name__ == "__main__":
     main()
