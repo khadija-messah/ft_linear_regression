@@ -2,28 +2,31 @@ import sys
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-def main():
-    if len(sys.argv) != 2:
-        print("Usage: python predict.py <mileage>")
-        return
+from pathlib import Path
+import os
+
+def verify_input(inpt):
 
     try:
-        input_mileage = float(sys.argv[1])
+        x = int(inpt)
     except ValueError:
-        print("Please enter a valid mileage value.")
-        return
-
-    with open("model_parameters.txt", "r") as f:
-        theta0, theta1, mileage_min, mileage_max = map(
-            float,
-            f.read().split(",")
-        )
-    normalized_input = (
-        input_mileage - mileage_min
-    ) / (mileage_max - mileage_min)
-    estimated_price = theta0 + theta1 * normalized_input
+        print("wrong input")
+        return False
+    return int(inpt)
 
 
+def check_path_parameters():
+
+    a = Path("model_parameters.txt")
+    if not a.exists():
+        print("file of paramaters.txt doesn't exists")
+        return False
+    x = os.stat("model_parameters.txt").st_size
+    if x == 0:
+        print("empty file")
+    return True
+
+def print_paramettre(input_mileage,mileage_min,mileage_max,normalized_input,theta0,theta1 ):
     print("input_mileage:", input_mileage)
     print("mileage_min:", mileage_min)
     print("mileage_max:", mileage_max)
@@ -31,38 +34,73 @@ def main():
     print("theta0:", theta0)
     print("theta1:", theta1)
 
+def calcule_predection_price(input_mileage):
+    with open("model_parameters.txt", "r") as f:
+            theta0, theta1, mileage_min, mileage_max = map(
+                float,
+                f.read().split(",")
+            )
+        
+    normalized_input = (
+            input_mileage - mileage_min
+        ) / (mileage_max - mileage_min)
+    estimated_price = theta0 + theta1 * normalized_input
+    print_paramettre(input_mileage,mileage_min,mileage_max,normalized_input,theta0,theta1)
+    print(f"Estimated price for {input_mileage} km: {estimated_price}")
+    graph_data(mileage_min,mileage_max,theta0,theta1)
+    return estimated_price
 
-    f = pd.read_csv("data.csv")
-    x = f.columns.tolist()
+def graph_data(mileage_min,mileage_max,theta0,theta1):
     km_values = np.linspace(mileage_min, mileage_max, 100)
     normalized_km_values = (km_values - mileage_min) / (mileage_max - mileage_min)
     price_values = theta0 + theta1 * normalized_km_values
 
-    print(f"Estimated price for {input_mileage} km: {estimated_price}")
+    f = pd.read_csv("data.csv")
+    x = f.columns.tolist()
 
     plt.scatter(f[x[0]], f[x[1]], color='blue', label='Data Points')
     plt.plot(km_values, price_values, color='red', label='Linear Regression')
+    calcule_precision_model(f[x[1]],f[x[0]],theta0,theta1,mileage_min,mileage_max)
 
-    
 
-    calculated_mean_price = np.mean(f[x[1]])
-    print("calculated_mean_price:", calculated_mean_price)
-    ss_total= np.sum((f[x[1]] - calculated_mean_price) ** 2)
-    print("total_sum_of_squares:", ss_total)
-
-    ss_residual = np.sum((f[x[1]] - (theta0 + theta1 * ((f[x[0]] - mileage_min) / (mileage_max - mileage_min)))) ** 2)
-    print("residual_sum_of_squares:", ss_residual)
-
+def calcule_precision_model(prices,km,theta0,theta1,mileage_min,mileage_max):
+    calculated_mean_price = np.mean(prices)
+    ss_total= np.sum((prices - calculated_mean_price) ** 2)
+    ss_residual = np.sum((prices - (theta0 + theta1 * ((km - mileage_min) / (mileage_max - mileage_min)))) ** 2)
     r_squared = 1 - (ss_residual / ss_total)
-    print("R-squared value:", r_squared)
+    print("precision model is:", r_squared)
 
-    plt.title(f"Estimated Price for Mileage {sys.argv[1]} km",fontdict={'family':'serif','color':'pink','size':12})
+
+def save_graph(input_mileage,estimated_price):
+
+    f = pd.read_csv("data.csv")
+    x = f.columns.tolist()
+    plt.title(f"Estimated Price for Mileage {input_mileage} km",fontdict={'family':'serif','color':'pink','size':12})
     plt.plot(input_mileage, estimated_price, marker='o', markersize=8, color='green', label='Estimated Price')
     plt.xlabel(x[0])
     plt.ylabel(x[1])
     plt.grid(color = 'pink', linestyle = '--', linewidth = 0.5)
     plt.legend()
-    plt.show()
+    plt.savefig("prediction.png")
 
+
+def main():
+     
+    while(True):
+        inpt = input("write the mealge you want to know him price : \n")
+        input_mileage = verify_input(inpt)
+        if not input_mileage :
+            return 
+        
+        if not check_path_parameters():
+            return
+        with open("model_parameters.txt", "r") as f:
+            theta0, theta1, mileage_min, mileage_max = map(
+                float,
+                f.read().split(",")
+            )
+        estimated_price = calcule_predection_price(input_mileage)
+        save_graph(input_mileage,estimated_price)
+        return
 if __name__ == "__main__":
     main()
