@@ -84,6 +84,7 @@ def save_graph(input_mileage,estimated_price):
     plt.ylabel(x[1])
     plt.grid(color = 'pink', linestyle = '--', linewidth = 0.5)
     plt.legend()
+    # plt.show()
     plt.savefig("prediction.png")
 
 
