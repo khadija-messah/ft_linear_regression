@@ -8,46 +8,49 @@ import os
 def verify_input(inpt):
 
     try:
-        x = int(inpt)
+        return int(inpt)
     except ValueError:
         print("wrong input")
         return False
-    return int(inpt)
-
 
 def check_path_parameters():
 
     a = Path("model_parameters.txt")
     if not a.exists():
-        print("file of paramaters.txt doesn't exists")
+        df = pd.read_csv("data.csv")
+        data = np.array(df)
+        mileage = data[:, 0]
+        price = data[:, 1]
+        with open("initalParam.txt","w") as file:
+            file.write(f"0,0,{mileage.min()},{mileage.max()}")
         return False
     x = os.stat("model_parameters.txt").st_size
     if x == 0:
-        print("empty file")
+        return False
     return True
 
-def print_paramettre(input_mileage,mileage_min,mileage_max,normalized_input,theta0,theta1 ):
-    print("input_mileage:", input_mileage)
-    print("mileage_min:", mileage_min)
-    print("mileage_max:", mileage_max)
-    print("normalized_input:", normalized_input)
-    print("theta0:", theta0)
-    print("theta1:", theta1)
-
-def calcule_predection_price(input_mileage):
-    with open("model_parameters.txt", "r") as f:
-            theta0, theta1, mileage_min, mileage_max = map(
-                float,
-                f.read().split(",")
-            )
+def calcule_predection_price(input_mileage,flag):
+    
+    if flag == 0:
+        with open("initalParam.txt","r") as f:
+                theta0, theta1, mileage_min, mileage_max = map(
+                    float,
+                    f.read().split(",")
+                )
+    else:
+        with open("model_parameters.txt", "r") as f:
+                theta0, theta1, mileage_min, mileage_max = map(
+                    float,
+                    f.read().split(",")
+                )
         
     normalized_input = (
             input_mileage - mileage_min
         ) / (mileage_max - mileage_min)
     estimated_price = theta0 + theta1 * normalized_input
-    print_paramettre(input_mileage,mileage_min,mileage_max,normalized_input,theta0,theta1)
-    print(f"Estimated price for {input_mileage} km: {estimated_price}")
-    graph_data(mileage_min,mileage_max,theta0,theta1)
+    print(f"Estimated price for {input_mileage} km: {estimated_price:.2f}")
+    if flag == 1:
+        graph_data(mileage_min,mileage_max,theta0,theta1)
     return estimated_price
 
 def graph_data(mileage_min,mileage_max,theta0,theta1):
@@ -76,7 +79,7 @@ def save_graph(input_mileage,estimated_price):
     f = pd.read_csv("data.csv")
     x = f.columns.tolist()
     plt.title(f"Estimated Price for Mileage {input_mileage} km",fontdict={'family':'serif','color':'pink','size':12})
-    plt.plot(input_mileage, estimated_price, marker='o', markersize=8, color='green', label='Estimated Price')
+    plt.plot(input_mileage, estimated_price, marker='*', markersize=8, color='green', label='Estimated Price')
     plt.xlabel(x[0])
     plt.ylabel(x[1])
     plt.grid(color = 'pink', linestyle = '--', linewidth = 0.5)
@@ -91,15 +94,10 @@ def main():
         input_mileage = verify_input(inpt)
         if not input_mileage :
             return 
-        
         if not check_path_parameters():
+            calcule_predection_price(input_mileage,0)
             return
-        with open("model_parameters.txt", "r") as f:
-            theta0, theta1, mileage_min, mileage_max = map(
-                float,
-                f.read().split(",")
-            )
-        estimated_price = calcule_predection_price(input_mileage)
+        estimated_price = calcule_predection_price(input_mileage,1)
         save_graph(input_mileage,estimated_price)
         return
 if __name__ == "__main__":

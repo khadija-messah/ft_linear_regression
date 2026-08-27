@@ -51,11 +51,11 @@ def estimate_price(mileage, theta0, theta1):
     return theta0 + theta1 * mileage
 
 def normalize_data(mileage):
-     normalized_mileage = (mileage - mileage.min()) / (mileage.max() - mileage.min())
-     return normalized_mileage,mileage.min(), mileage.max()
+    normalized_mileage = (mileage - mileage.min()) / (mileage.max() - mileage.min())
+    return normalized_mileage,mileage.min(), mileage.max()
 
 
-def train_model(mileage, price, theta0, theta1, learning_rate=0.01, num_iterations=1000000):
+def train_model(mileage, price, theta0, theta1, learning_rate=0.01, num_iterations=100000):
     m = len(mileage)
     for i in range(num_iterations):
         estimated_price = estimate_price(mileage, theta0, theta1)
@@ -67,7 +67,7 @@ def train_model(mileage, price, theta0, theta1, learning_rate=0.01, num_iteratio
         sum_error_mileage = np.sum(error * mileage)
         average_error_mileage = sum_error_mileage / m
         tmpθ1 = learning_rate * average_error_mileage
-
+        
         theta0 -= tmpθ0
         theta1 -= tmpθ1
     print(f"Training completed. Final parameters: theta0 = {theta0}, theta1 = {theta1}")
