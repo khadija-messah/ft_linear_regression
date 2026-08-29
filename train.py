@@ -60,17 +60,16 @@ def train_model(mileage, price, theta0, theta1, learning_rate=0.01, num_iteratio
     for i in range(num_iterations):
         estimated_price = estimate_price(mileage, theta0, theta1)
         error = estimated_price - price
-        sum_error_price = np.sum(error)
-        average_error = sum_error_price / m
+
+        average_error = np.sum(error) / m
         tmpθ0 = learning_rate * average_error
 
-        sum_error_mileage = np.sum(error * mileage)
-        average_error_mileage = sum_error_mileage / m
+        average_error_mileage = np.sum(error * mileage) / m
         tmpθ1 = learning_rate * average_error_mileage
         
         theta0 -= tmpθ0
         theta1 -= tmpθ1
-    print(f"Training completed. Final parameters: theta0 = {theta0}, theta1 = {theta1}")
+        print("Iteration:", i, "Theta0:", theta0, "Theta1:", theta1, "tmpθ0:", tmpθ0, "tmpθ1:", tmpθ1)
     return theta0, theta1
 
 
